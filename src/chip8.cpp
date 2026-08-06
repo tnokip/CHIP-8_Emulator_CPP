@@ -8,7 +8,7 @@
 
 bool drawflag = false;
 bool dxynflag = false;
-std::string filename = "PONG";
+std::string filename = "c8 roms/TETRIS";
 
 U8 fontset[Fontset_Size] =
 {
