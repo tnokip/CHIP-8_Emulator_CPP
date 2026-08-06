@@ -33,11 +33,20 @@ U8 fontset[Fontset_Size] =
 
 chip8::chip8() 
 {
-    pc = Starting_Address;     
+    pc = Starting_Address;    
+    opcode = 0;
    //display[width*height] = {0}; 
    memset(display, 0, sizeof(display));
    //keypad[16] = {0} ; 
    memset(keypad,0, sizeof(keypad)); 
+   memset(memory,0,sizeof(memory));
+   memset(stack,0,sizeof(stack));
+   memset(registers,0,sizeof(registers));
+
+    soundtimer = 0;
+    delaytimer = 0; 
+    sp = 0;
+
    for(uint i = 0; i< Fontset_Size; i++)
         {
             memory[Fontset_Starting_Address + i] = fontset[i];
@@ -79,7 +88,8 @@ void chip8::LoadROM()
 
 void chip8::setTimer()
 {
-    if(soundtimer > 0)soundtimer--;
+    if(soundtimer > 0)
+        {if(soundtimer == 1)soundtimer--;}
     if(delaytimer > 0)delaytimer--;
     
 }
@@ -99,10 +109,6 @@ const U16 chip8::getKey(int a)
 
 void chip8::cycle()
 {
-    //timers
-    //soundtimer++;
-    //delaytimer++;
-    setTimer();
 
     //fetch
     opcode = (memory[pc] << 8) | (memory[pc + 1]) ;
@@ -274,27 +280,27 @@ switch (opcode & 0xF000)
         case 0xD000:    // 0xDXYN - draw from x , 8 pixels wide 
                         // and from y n pixels tall
          {
-            int x = registers[(opcode & 0x0F00) >> 8];
-            int y = registers[(opcode & 0x00F0) >> 4];
-            int n = opcode & 0x000F ;
+            unsigned short x = registers[(opcode & 0x0F00) >> 8];
+            unsigned short y = registers[(opcode & 0x00F0) >> 4];
+            unsigned short n = opcode & 0x000F ;
             registers[0xF] = 0;
 
             for(int i = 0;i<n; i++ ) 
             {
-                U8 sprite = memory[index + i];
+                unsigned short sprite = memory[index + i];
                 for(int j = 0; j < 8; j++)
                 {
                     if(sprite & (0x80 >> j))
                     {
-                        int px = (j + x)% width;
-                        int py = (i + y)% height;
-                        int pos = py * width + px;
-                        if(display[pos] == 1)
+                        //int px = (j + x)% width;
+                        //nt py = (i + y)% height;
+                        //int pos = py * width + px;
+                        if(display[(x+j) + ((y+i)*64)] == 1)
                         {
                             registers[0xF] = 1;
                         }
 
-                        display[pos] ^= 1;
+                        display[(x+j) + ((y+i)*64)] ^= 1;
                     }
                 }
             }
@@ -396,5 +402,9 @@ switch (opcode & 0xF000)
             }
 
     } 
+    //timers
+    //soundtimer++;
+    //delaytimer++;
+    setTimer();
 }
 

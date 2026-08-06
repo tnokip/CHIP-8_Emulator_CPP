@@ -176,7 +176,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         myemu.cycle();
         cycleTimer -= cycleDelay;
-    }
 
     
 
@@ -186,7 +185,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         drawflag = false;
     }
 
-    myemu.setTimer();
+    }
+    //myemu.setTimer();
 
     return SDL_APP_CONTINUE;
 }
