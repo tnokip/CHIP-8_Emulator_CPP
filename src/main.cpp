@@ -3,8 +3,61 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
-
+#include <vector>
+#include <filesystem>
+#include <algorithm>
 chip8 myemu;
+
+std::string SelectRom(const std::string &romDirectory = "c8 roms")
+{
+    std::vector<std::filesystem::path> ROMS;
+
+    if(!std::filesystem::exists(romDirectory) || !std::filesystem::is_directory(romDirectory))
+    {
+        std::cout<<"ROM Directory \""<< romDirectory <<"\" not found.\n";
+        return"" ;
+    }
+
+    for(const auto &start : std::filesystem::directory_iterator(romDirectory))
+    {
+        if(start.is_regular_file())
+            ROMS.push_back(start.path());
+    }
+
+    std::sort(ROMS.begin(), ROMS.end());
+
+    if(ROMS.empty())
+    {
+        std::cout << "No ROMs found in \"" << romDirectory << "\".\n";
+        return "";
+    }
+
+     int choice = -1;
+    while(choice < 1 || choice > (int)ROMS.size())
+    {
+        std::cout << "\n=== CHIP-8 ROM Selector ===\n";
+
+        for(size_t i = 0; i < ROMS.size(); i++)
+        {
+            std::cout << "  " << (i + 1) << ". " << ROMS[i].filename().string() << "\n";
+        }
+
+        std::cout << "\nSelect a ROM (1-" << ROMS.size() << "): ";
+        std::cin >> choice;
+
+        if(std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
+    }
+
+     return ROMS[choice - 1].string();
+}
+
+
+
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer;
@@ -18,6 +71,14 @@ U32 lastTimer = SDL_GetTicks();
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
+    std::string chosen = SelectRom();
+    if(chosen.empty())
+    {
+        std::cout << "No ROM selected, exiting.\n";
+        return SDL_APP_FAILURE;
+    }
+    filename = chosen;
+
     SDL_InitSubSystem(SDL_INIT_VIDEO);
     if(!SDL_Init(SDL_INIT_VIDEO))
     {
