@@ -186,7 +186,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     }
-    //myemu.setTimer();
 
+    while(timerTimer >= timerDelay)
+    {
+        myemu.setTimer();
+        timerTimer -= timerDelay;
+    }
+
+        
     return SDL_APP_CONTINUE;
 }

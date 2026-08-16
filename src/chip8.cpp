@@ -88,8 +88,7 @@ void chip8::LoadROM()
 
 void chip8::setTimer()
 {
-    if(soundtimer > 0)
-        {if(soundtimer == 1)soundtimer--;}
+    if(soundtimer > 0)soundtimer--;
     if(delaytimer > 0)delaytimer--;
     
 }
@@ -133,7 +132,9 @@ switch (opcode & 0xF000)
 
                 
                 default:
-                    std::cout<<"Unknown opcode\n";
+                    std::cout<<"Unknown opcode: " << std::hex << opcode << "\n";
+                    pc += 2;
+                    break;
             }
             break;
 
@@ -228,7 +229,7 @@ switch (opcode & 0xF000)
 
                 case 0x0006:    // 0x8XY6 - set Vf to least significant bit of Vx
                                 // then Vx set to Vx/2 i.e. shift right by 1
-                registers[0xF] = registers[(opcode & 0x0F00) >> 8];
+                registers[0xF] = registers[(opcode & 0x0F00) >> 8] & 0x1;
                 registers[(opcode & 0x0F00) >> 8] >>= 1;
                 pc += 2;
                 break;
@@ -246,7 +247,7 @@ switch (opcode & 0xF000)
 
                 case 0x000E:    // 0x8XYE - Vf =  most significant bit of Vx
                                 // Vx * 2 i.e. Vx left shifted
-                registers[0xF] = registers[(opcode & 0x0F00) >> 8] >> 7;
+                registers[0xF] = (registers[(opcode & 0x0F00) >> 8] >> 7) & 0x1;
                 registers[(opcode & 0x0F00) >> 8] <<=1;
                 pc += 2;
                 break;
@@ -324,6 +325,11 @@ switch (opcode & 0xF000)
                if(getKey(registers[(opcode & 0x0F00)>>8]) == 0)pc += 4;
                else pc += 2;
                break;
+            
+                default:
+                    std::cout<<"Unknown opcode: " << std::hex << opcode << "\n";
+                    pc += 2;
+                    break;
             }
             break;
 
@@ -352,15 +358,22 @@ switch (opcode & 0xF000)
                     }  
                     break;
 
-                case 0x0015: //0xFX15  sets delay timer to 15
+                case 0x0015: //0xFX15  sets delay timer to Vx
                         delaytimer = registers[(opcode & 0x0F00)>>8];
                         pc += 2;
                         break;
 
-                case 0x001E:    // Vf =1 when I+Vx > 0xFFF, and vice versa
+                case 0x0018:    //0xFX18 sets sound timer to Vx
+                        soundtimer = registers[(opcode & 0x0F00) >> 8];
+                        pc += 2;
+                        break;
+
+
+                case 0x001E:    //0xFX1E Vf =1 when I+Vx > 0xFFF, and vice versa
                         if((index + registers[(opcode & 0x0F00)>>8]) > 0xFFF)
                         {   registers[0xF] = 1; }
                         else registers[0xF] = 0;
+                        index += registers[(opcode & 0x0F00) >> 8];
                         pc += 2;
                         break;
 
@@ -399,12 +412,17 @@ switch (opcode & 0xF000)
                     index += ((opcode & 0x0F00) >> 8) + 1;
                     pc += 2;
                     break;
+                    
+                default:
+                    std::cout<<"Unknown opcode: " << std::hex << opcode << "\n";
+                    pc += 2;
+                    break;
             }
 
     } 
     //timers
     //soundtimer++;
     //delaytimer++;
-    setTimer();
+    //setTimer();
 }
 
