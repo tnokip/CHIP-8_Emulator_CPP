@@ -8,7 +8,7 @@
 #include <algorithm>
 chip8 myemu;
 
-std::string SelectRom(const std::string &romDirectory = "c8 roms")
+std::string SelectRom(const std::string &romDirectory = "c8roms")
 {
     std::vector<std::filesystem::path> ROMS;
 

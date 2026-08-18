@@ -1,8 +1,9 @@
 #include "../include/chip8.h"
+#include <cstring>
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3/SDL_render.h>
+//#include <SDL3/SDL.h>
+//#include <SDL3/SDL_main.h>
+//#include <SDL3/SDL_render.h>
 
 
 
