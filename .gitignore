@@ -10,4 +10,4 @@ include/*.o
 Makefile
 chip8
 chip8emu.exe
-
+build/
